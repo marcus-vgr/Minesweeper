@@ -65,6 +65,7 @@ void Minesweeper::bombs_quantity(std::vector<std::vector<char>> &v){
 
 Minesweeper::Minesweeper(){ // Constructor
     srand(time(NULL));
+    int count_openings = 0;
     
     for(int i = 0; i <= 9; i++){
         std::vector<char> row;
@@ -87,7 +88,7 @@ bool Minesweeper::round(){
     char action;
     bool valid = false;
     do{
-        std::cout << "Type Vertical, Horizontal and Action ('o' for open or 'b' for bomb): ";
+        std::cout << "Type ROW, COL and ACTION ('o' for open or 'b' for bomb): ";
         std::cin >> x >> y >> action;
         
         if(isValid(x,y)){
@@ -118,28 +119,13 @@ bool Minesweeper::round(){
     return true;
 }
 
-int Minesweeper::verify_position_opening(int x, int y){
-    if(x >= 0 && x <= 9 && y >= 0 && y <= 9){
-            if(char_prints[x][y] == '*'){
-                return -1;
-            }
-            else if(char_prints[x][y] == '0'){
-                return 0;
-            }
-            else{
-                return +1;
-            }
-            
-    }
-    return -1;
-
-}
 
 void Minesweeper::open_cells(int x, int y, std::vector<std::vector<char>> &v){
 
-    if(v[x][y] == '_' || v[x][y] == 'B'){ // Check if cell inst already open
+    if(v[x][y] == '_' || v[x][y] == 'B'){ // Check if cell isnt already open
     
         v[x][y] = char_prints[x][y];
+        count_openings++;
 
         if(v[x][y] == '0'){
             
@@ -195,7 +181,6 @@ void Minesweeper::open_cells(int x, int y, std::vector<std::vector<char>> &v){
                 }
             }
             
-
         }
     }    
 }
@@ -224,4 +209,20 @@ void Minesweeper::print_table(bool complete = false){ // Function to print the t
         std::cout << '\n';
 
     }
+}
+
+void Minesweeper::run_game(){
+    bool continue_game = true;
+    
+    do{
+      print_table(false);
+      continue_game = round();  
+    }while(continue_game && count_openings < 10*10-10);
+
+    if(count_openings == 10*10-10){
+        std::cout << "YOU WOOON!!!!!!! \n";
+    }
+    
+    print_table(true);
+    
 }
