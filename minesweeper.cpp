@@ -2,7 +2,6 @@
 #include <vector>
 #include <ctime>
 #include <cstdlib> 
-#include <charconv>
 #include "minesweeper.h"
 
 int random_number_generator(){ 
@@ -21,15 +20,22 @@ void Minesweeper::create_bombs(std::vector<std::vector<char>> &v){ // Functions 
     }
 } 
 
+bool Minesweeper::isValid(int x, int y){
+    if(x >= 0 && x <= 9 && y >= 0 && y <= 9){
+        return true;
+    }
+    return false;
+}
+
 int Minesweeper::verify_position(int x, int y, std::vector<std::vector<char>> v){ 
     // Check if position is valid and if there is a bomb.
-        if(x >= 0 && x <= 9 && y >= 0 && y <= 9){
+        if(isValid(x, y)){
             if(v[x][y] == '*'){
                 return +1;
             }
         }
         return 0;
-    }
+}
 
 void Minesweeper::bombs_quantity(std::vector<std::vector<char>> &v){
     /*
@@ -75,6 +81,124 @@ Minesweeper::Minesweeper(){ // Constructor
 
 }
 
+bool Minesweeper::round(){
+
+    int x, y;
+    char action;
+    bool valid = false;
+    do{
+        std::cout << "Type Vertical, Horizontal and Action ('o' for open or 'b' for bomb): ";
+        std::cin >> x >> y >> action;
+        
+        if(isValid(x,y)){
+            if(action == 'o' || action == 'b'){
+                valid = true;
+            }
+        }
+
+    }while(!valid);
+
+    if(action == 'b'){
+        if(table_info[x][y] != 'B'){
+            table_info[x][y] = 'B';
+        }
+        else{
+            table_info[x][y] = '_';
+        }
+        
+    }
+    else{
+        if(char_prints[x][y] == '*'){
+            std::cout << "YOU LOOOOSE!!!! \n";
+            return false;
+        }
+        open_cells(x, y, table_info);
+        
+    }
+    return true;
+}
+
+int Minesweeper::verify_position_opening(int x, int y){
+    if(x >= 0 && x <= 9 && y >= 0 && y <= 9){
+            if(char_prints[x][y] == '*'){
+                return -1;
+            }
+            else if(char_prints[x][y] == '0'){
+                return 0;
+            }
+            else{
+                return +1;
+            }
+            
+    }
+    return -1;
+
+}
+
+void Minesweeper::open_cells(int x, int y, std::vector<std::vector<char>> &v){
+
+    if(v[x][y] == '_' || v[x][y] == 'B'){ // Check if cell inst already open
+    
+        v[x][y] = char_prints[x][y];
+
+        if(v[x][y] == '0'){
+            
+            
+            if(isValid(x-1,y-1)){
+                if(char_prints[x-1][y-1] != '*'){
+                    open_cells(x-1,y-1, v);
+                }
+            }
+
+            if(isValid(x-1,y)){
+                if(char_prints[x-1][y] != '*'){
+                    open_cells(x-1,y, v);
+                }
+            }
+
+            if(isValid(x-1,y+1)){
+                if(char_prints[x-1][y+1] != '*'){
+                    open_cells(x-1,y+1, v);
+                }
+            }
+
+            
+            if(isValid(x,y-1)){
+                if(char_prints[x][y-1] != '*'){
+                    open_cells(x,y-1, v);
+                }
+            }
+
+            
+            if(isValid(x,y+1)){
+                if(char_prints[x][y+1] != '*'){
+                    open_cells(x,y+1, v);
+                }
+            }
+            
+            
+            if(isValid(x+1,y-1)){
+                if(char_prints[x+1][y-1] != '*'){
+                    open_cells(x+1,y-1, v);
+                }
+            }
+
+            if(isValid(x+1,y)){
+                if(char_prints[x+1][y] != '*'){
+                    open_cells(x+1,y, v);
+                }
+            }
+
+            if(isValid(x+1,y+1)){
+                if(char_prints[x+1][y+1] != '*'){
+                    open_cells(x+1,y+1, v);
+                }
+            }
+            
+
+        }
+    }    
+}
 
 
 void Minesweeper::print_table(bool complete = false){ // Function to print the table given the information from table_info
